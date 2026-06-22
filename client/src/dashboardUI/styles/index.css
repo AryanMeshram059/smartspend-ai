@@ -1,0 +1,52 @@
+:root {
+  --ss-bg: #EFECE1;
+  --ss-surface: #E9E4D3;
+  --ss-surface-2: #E0D9C4;
+  --ss-border: #DDD6BF;
+  --ss-accent: #7F7933;
+  --ss-accent-subtle: rgba(127,121,51,0.13);
+  --ss-ai: #1A82B3;
+  --ss-ai-subtle: rgba(26,130,179,0.12);
+  --ss-positive: #166534;
+  --ss-positive-subtle: rgba(22,101,52,0.12);
+  --ss-negative: #C84646;
+  --ss-negative-subtle: rgba(200,70,70,0.12);
+  --ss-text-1: #18181b;
+  --ss-text-2: #71717a;
+  --ss-text-3: #a1a1aa;
+  --ss-sidebar: #E4DFCE;
+  --ss-bal-bg: rgba(127,121,51,0.14);
+  --ss-bal-amount: #7F7933;
+  --ss-bal-sub: #166534;
+}
+
+.dark {
+  --ss-bg: #09090b;
+  --ss-surface: #18181b;
+  --ss-surface-2: #1f1f23;
+  --ss-border: #27272a;
+  --ss-accent: #E0D206;
+  --ss-accent-subtle: rgba(224,210,6,0.12);
+  --ss-ai: #88D9FF;
+  --ss-ai-subtle: rgba(136,217,255,0.12);
+  --ss-positive: #4ADE80;
+  --ss-positive-subtle: rgba(74,222,128,0.12);
+  --ss-negative: #F37272;
+  --ss-negative-subtle: rgba(243,114,114,0.12);
+  --ss-text-1: #fafafa;
+  --ss-text-2: #a1a1aa;
+  --ss-text-3: #71717a;
+  --ss-sidebar: #111113;
+  --ss-bal-bg: #1A1600;
+  --ss-bal-amount: #E0D206;
+  --ss-bal-sub: #4ADE80;
+}
+
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}
