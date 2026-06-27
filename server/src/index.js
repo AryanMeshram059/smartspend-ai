@@ -17,7 +17,17 @@ dotenv.config()
 
 const app = express()
 
-app.use(cors())
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://your-app-name.vercel.app",// replace this with actual vercel url
+];
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
 app.use(helmet())
 app.use(express.json())
 
