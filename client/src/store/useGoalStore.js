@@ -1,50 +1,87 @@
 import { create } from "zustand"
-import { getGoals, createGoal, updateGoal, deleteGoal, getAchievements, getXpLogs } from "../services/goalService"
+import goalService from "../services/goalService"
 
 const useGoalStore = create((set) => ({
   goals: [],
-  achievements: [],
-  xpLogs: [],
   loading: false,
 
   fetchGoals: async () => {
     set({ loading: true })
+
     try {
-      const res = await getGoals()
-      set({ goals: res.data.data || res.data, loading: false })
-    } catch {
+      const data =
+        await goalService.getGoals()
+
+      set({
+        goals: data.goals || [],
+      })
+    } catch (error) {
+      console.error(error)
+    } finally {
       set({ loading: false })
     }
   },
 
-  addGoal: async (data) => {
-    const res = await createGoal(data)
-    const newGoal = res.data.data || res.data
-    set((state) => ({ goals: [...state.goals, newGoal] }))
-    return newGoal
+  createGoal: async (goal) => {
+    const data =
+      await goalService.createGoal(goal)
+
+    set((state) => ({
+      goals: [
+        data.goal,
+        ...state.goals,
+      ],
+    }))
+
+    return data
   },
 
-  editGoal: async (id, data) => {
-    const res = await updateGoal(id, data)
-    const updated = res.data.data || res.data
+  updateGoal: async (
+    id,
+    updates
+  ) => {
+    const data =
+      await goalService.updateGoal(
+        id,
+        updates
+      )
+
     set((state) => ({
-      goals: state.goals.map((g) => (g.id === id ? updated : g)),
+      goals: state.goals.map((goal) =>
+        goal.id === id
+          ? data.goal
+          : goal
+      ),
     }))
   },
 
-  removeGoal: async (id) => {
-    await deleteGoal(id)
-    set((state) => ({ goals: state.goals.filter((g) => g.id !== id) }))
+  addSavings: async (
+    id,
+    amount
+  ) => {
+    const data =
+      await goalService.addSavings(
+        id,
+        amount
+      )
+
+    set((state) => ({
+      goals: state.goals.map((goal) =>
+        goal.id === id
+          ? data.goal
+          : goal
+      ),
+    }))
   },
 
-  fetchAchievements: async () => {
-    const res = await getAchievements()
-    set({ achievements: res.data.data || res.data })
-  },
+  deleteGoal: async (id) => {
+    await goalService.deleteGoal(id)
 
-  fetchXpLogs: async () => {
-    const res = await getXpLogs()
-    set({ xpLogs: res.data.data || res.data })
+    set((state) => ({
+      goals: state.goals.filter(
+        (goal) => goal.id !== id
+      ),
+    }))
   },
 }))
 

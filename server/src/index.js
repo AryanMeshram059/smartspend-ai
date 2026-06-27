@@ -9,6 +9,7 @@ import transactionRoutes from "./routes/transaction.routes.js"
 import dashboardRoutes from "./routes/dashboard.routes.js"
 import aiRoutes from "./routes/ai.routes.js"
 import chatRoutes from "./routes/chat.routes.js"
+import goalRoutes from "./routes/goal.routes.js"
 
 import errorMiddleware from "./middleware/error.middleware.js"
 
@@ -32,6 +33,7 @@ app.use("/api/transactions", transactionRoutes)
 app.use("/api/dashboard",dashboardRoutes)
 app.use("/api/ai", aiRoutes)
 app.use("/api/chat", chatRoutes)
+app.use("/api/goals", goalRoutes)
 
 app.use(errorMiddleware)
 
