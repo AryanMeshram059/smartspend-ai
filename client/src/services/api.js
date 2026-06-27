@@ -2,8 +2,9 @@ import axios from "axios"
 import supabase from "../lib/supabase" // adjust path if needed
 
 const api = axios.create({
-  baseURL: "http://localhost:5000/api",
-})
+  baseURL: `${import.meta.env.VITE_API_URL}/api`,
+  withCredentials: true,
+});
 
 api.interceptors.request.use(
   async (config) => {

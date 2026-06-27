@@ -1,6 +1,7 @@
 import { create } from "zustand"
 import supabase from "../lib/supabase"
 import { isOnline } from "../pwa/cacheManager"
+import api from "../services/api"
 
 const getSessionUser = (session) => ({
   id: session.user?.id,
@@ -29,20 +30,11 @@ const useAuthStore = create((set) => ({
 
     if (error) throw error
 
-    await fetch(
-      "http://localhost:5000/api/auth/profile",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: data.user.id,
-          name,
-          email,
-        }),
-      }
-    )
+    await api.post("/auth/profile", {
+      id: data.user.id,
+      name,
+      email,
+    })
 
     set({
       user: {
@@ -68,20 +60,15 @@ const useAuthStore = create((set) => ({
       })
 
     if (error) throw error
+
     console.log(data.session)
 
-    // fetch profile from database
-    const profileResponse = await fetch(
-      "http://localhost:5000/api/auth/me",
-      {
+    const { data: profileData } =
+      await api.get("/auth/me", {
         headers: {
           Authorization: `Bearer ${data.session.access_token}`,
         },
-      }
-    )
-
-    const profileData =
-      await profileResponse.json()
+      })
 
     set({
       user: profileData.user,
@@ -99,6 +86,7 @@ const useAuthStore = create((set) => ({
       session: null,
     })
   },
+
   loadUser: async () => {
     const {
       data: { session },
@@ -115,20 +103,12 @@ const useAuthStore = create((set) => ({
     }
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/auth/me",
-        {
+      const { data: profile } =
+        await api.get("/auth/me", {
           headers: {
             Authorization: `Bearer ${session.access_token}`,
           },
-        }
-      )
-
-      if (!response.ok) {
-        throw new Error(`Profile request failed with ${response.status}`)
-      }
-
-      const profile = await response.json()
+        })
 
       set({
         session,

@@ -7,9 +7,10 @@ import {
 import { isOnline } from "./cacheManager"
 
 const API_URL =
-  import.meta.env.VITE_API_URL ||
-  "http://localhost:5000/api"
-
+  import.meta.env.VITE_API_URL
+    ? `${import.meta.env.VITE_API_URL}/api`
+    : "http://localhost:5000/api"
+    
 const TEMP_ID_MAP_KEY = "smartspend:sync-temp-id-map"
 const RETRY_DELAY_MS = 30000
 
