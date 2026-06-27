@@ -1,5 +1,15 @@
 import { create } from "zustand"
 import supabase from "../lib/supabase"
+import { isOnline } from "../pwa/cacheManager"
+
+const getSessionUser = (session) => ({
+  id: session.user?.id,
+  email: session.user?.email,
+  name:
+    session.user?.user_metadata?.name ||
+    session.user?.email?.split("@")[0] ||
+    "SmartSpend User",
+})
 
 const useAuthStore = create((set) => ({
   user: null,
@@ -7,6 +17,10 @@ const useAuthStore = create((set) => ({
   loading: false,
 
   signUp: async (email, password, name) => {
+    if (!isOnline()) {
+      throw new Error("Sign up requires an internet connection.")
+    }
+
     const { data, error } =
       await supabase.auth.signUp({
         email,
@@ -43,6 +57,10 @@ const useAuthStore = create((set) => ({
   },
 
   signIn: async (email, password) => {
+    if (!isOnline()) {
+      throw new Error("Sign in requires an internet connection.")
+    }
+
     const { data, error } =
       await supabase.auth.signInWithPassword({
         email,
@@ -88,21 +106,45 @@ const useAuthStore = create((set) => ({
 
     if (!session) return
 
-    const response = await fetch(
-      "http://localhost:5000/api/auth/me",
-      {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
+    if (!isOnline()) {
+      set({
+        session,
+        user: getSessionUser(session),
+      })
+      return
+    }
+
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/auth/me",
+        {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error(`Profile request failed with ${response.status}`)
       }
-    )
 
-    const profile = await response.json()
+      const profile = await response.json()
 
-    set({
-      session,
-      user: profile.user,
-    })
+      set({
+        session,
+        user: profile.user,
+      })
+    } catch (error) {
+      if (!isOnline() || error instanceof TypeError) {
+        set({
+          session,
+          user: getSessionUser(session),
+        })
+        return
+      }
+
+      throw error
+    }
   },
 }))
 

@@ -16,6 +16,8 @@ import { ThemeToggle } from "../dashboard/ThemeToggle.jsx"
 import useAuthStore from "@/store/useAuthStore"
 import useQuickAddStore from "@/store/useQuickAddStore.js"
 import QuickAddModal from "@/components/QuickAddModal.jsx"
+import useOnlineStatus from "@/hooks/useOnlineStatus"
+import useSyncStatus from "@/hooks/useSyncStatus"
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/" },
@@ -284,7 +286,125 @@ function BottomNav() {
   )
 }
 
-export function AppShell({ title, eyebrow = "SMARTSPEND AI", actions, children }) {
+function OfflineBanner() {
+  const isOnline = useOnlineStatus()
+
+  if (isOnline) return null
+
+  return (
+    <div
+      className="px-8 md:px-10 xl:px-12 2xl:px-16 py-3"
+      style={{
+        background: "rgba(224,210,6,0.14)",
+        borderBottom:
+          "1px solid color-mix(in srgb, var(--ss-accent) 35%, transparent)",
+        color: "var(--ss-text-1)",
+      }}
+    >
+      <div className="mx-auto w-full max-w-[1600px]">
+        <p style={{ fontSize: 13, fontWeight: 700 }}>
+          Offline Mode
+        </p>
+        <p style={{ fontSize: 12, color: "var(--ss-text-2)" }}>
+          Viewing cached data. Changes will sync automatically when internet is available.
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function SyncStatusIndicator() {
+  const {
+    status,
+    pendingCount,
+    failedCount,
+    retryFailed,
+    discardFailed,
+  } = useSyncStatus()
+
+  const label =
+    status === "offline"
+      ? "Offline"
+      : status === "syncing"
+        ? "Syncing..."
+        : status === "failed"
+          ? "Sync Failed"
+          : status === "pending"
+            ? "Pending Sync"
+            : "Synced"
+
+  const detail =
+    failedCount > 0
+      ? `${failedCount} failed`
+      : pendingCount > 0
+        ? `${pendingCount} queued`
+        : ""
+
+  const color =
+    status === "failed"
+      ? "var(--ss-negative)"
+      : status === "offline"
+        ? "var(--ss-accent)"
+        : status === "syncing" ||
+            status === "pending"
+          ? "var(--ss-ai)"
+          : "var(--ss-positive)"
+
+  return (
+    <div
+      className="flex items-center gap-2 rounded-xl px-3 py-2"
+      style={{
+        background: "var(--ss-surface)",
+        border: "1px solid var(--ss-border)",
+        color,
+        fontSize: 12,
+        fontWeight: 700,
+        whiteSpace: "nowrap",
+      }}
+      title={detail || label}
+    >
+      <span>{label}</span>
+      {detail && (
+        <span
+          style={{
+            color: "var(--ss-text-3)",
+            fontWeight: 600,
+          }}
+        >
+          {detail}
+        </span>
+      )}
+      {status === "failed" && (
+        <>
+          <button
+            onClick={retryFailed}
+            className="rounded-lg px-2 py-1"
+            style={{
+              background:
+                "var(--ss-accent-subtle)",
+              color: "var(--ss-accent)",
+            }}
+          >
+            Retry
+          </button>
+          <button
+            onClick={discardFailed}
+            className="rounded-lg px-2 py-1"
+            style={{
+              background:
+                "var(--ss-surface-2)",
+              color: "var(--ss-text-2)",
+            }}
+          >
+            Discard
+          </button>
+        </>
+      )}
+    </div>
+  )
+}
+
+export function AppShell({ title, actions, children }) {
   return (
     <div className="min-h-screen flex" style={{ background: "var(--ss-bg)", color: "var(--ss-text-1)" }}>
       <Sidebar />
@@ -325,6 +445,7 @@ export function AppShell({ title, eyebrow = "SMARTSPEND AI", actions, children }
             </div>
 
             {actions}
+            <SyncStatusIndicator />
             <ThemeToggle />
 
             <button
@@ -337,6 +458,8 @@ export function AppShell({ title, eyebrow = "SMARTSPEND AI", actions, children }
         </header>
 
         {/* ── Page content ── */}
+        <OfflineBanner />
+
         <main className="flex-1 w-full">
           {/* PageContainer — every page's content lives inside this wrapper */}
           <div className="mx-auto w-full max-w-[1600px] px-8 md:px-10 xl:px-12 2xl:px-16 py-8 pb-28 md:pb-10">

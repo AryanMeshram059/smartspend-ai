@@ -29,6 +29,34 @@ export default defineConfig({
         clientsClaim: true,
 
         skipWaiting: true,
+
+        navigateFallback: "index.html",
+
+        globPatterns: [
+          "**/*.{js,css,html,ico,png,svg,jpg,jpeg,webp,woff,woff2}",
+        ],
+
+        runtimeCaching: [
+          {
+            urlPattern:
+              /\/api\/(dashboard|transactions|goals)(\/.*)?$/,
+            handler: "NetworkFirst",
+            method: "GET",
+            options: {
+              cacheName:
+                "smartspend-api-get-cache",
+              expiration: {
+                maxEntries: 60,
+                maxAgeSeconds:
+                  60 * 60 * 24 * 7,
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+              networkTimeoutSeconds: 3,
+            },
+          },
+        ],
       },
 
       devOptions: {

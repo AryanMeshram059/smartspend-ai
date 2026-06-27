@@ -51,12 +51,61 @@ function detectCategory(text = "") {
   return "Other"
 }
 
+function assertNumericId(transactionId) {
+  if (!/^\d+$/.test(String(transactionId))) {
+    const error = new Error(
+      "Transaction was created offline but has no server id yet."
+    )
+    error.status = 409
+    throw error
+  }
+}
+
+function sanitizeTransactionUpdates(updates = {}) {
+  const allowedFields = [
+    "amount",
+    "type",
+    "category",
+    "note",
+    "transaction_date",
+    "is_recurring",
+  ]
+
+  const sanitized = {}
+
+  allowedFields.forEach((field) => {
+    if (updates[field] !== undefined) {
+      sanitized[field] = updates[field]
+    }
+  })
+
+  if (
+    sanitized.note === undefined &&
+    updates.description !== undefined
+  ) {
+    sanitized.note = updates.description
+  }
+
+  return sanitized
+}
+
+function notFound(message) {
+  const error = new Error(message)
+  error.status = 404
+  throw error
+}
+
 export const createTransaction = async (
   userId,
   transaction
 ) => {
+  const description =
+    transaction.description ||
+    transaction.note ||
+    "Transaction"
+
   const category = detectCategory(
-    transaction.description
+    description
   )
 
   const type =
@@ -72,7 +121,7 @@ export const createTransaction = async (
         amount: transaction.amount,
         type,
         category,
-        note: transaction.description,
+        note: description,
         transaction_date: new Date()
           .toISOString()
           .split("T")[0],
@@ -108,15 +157,25 @@ export const updateTransaction = async (
   transactionId,
   updates
 ) => {
+  assertNumericId(transactionId)
+
+  const sanitizedUpdates =
+    sanitizeTransactionUpdates(updates)
+
   const { data, error } = await supabase
     .from("transactions")
-    .update(updates)
+    .update(sanitizedUpdates)
     .eq("id", transactionId)
     .eq("user_id", userId)
     .select()
-    .single()
+    .maybeSingle()
 
   if (error) throw error
+  if (!data) {
+    notFound(
+      "Transaction no longer exists or belongs to another user."
+    )
+  }
 
   return data
 }
@@ -125,6 +184,8 @@ export const deleteTransaction = async (
   userId,
   transactionId
 ) => {
+  assertNumericId(transactionId)
+
   const { error } = await supabase
     .from("transactions")
     .delete()

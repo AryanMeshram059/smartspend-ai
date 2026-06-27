@@ -1,5 +1,21 @@
 import supabase from "../db/supabase.js"
 
+function assertNumericId(id, label) {
+  if (!/^\d+$/.test(String(id))) {
+    const error = new Error(
+      `${label} was created offline but has no server id yet.`
+    )
+    error.status = 409
+    throw error
+  }
+}
+
+function notFound(message) {
+  const error = new Error(message)
+  error.status = 404
+  throw error
+}
+
 export const createGoal = async (userId, goal) => {
   const { data, error } = await supabase
     .from("goals")
@@ -40,15 +56,22 @@ export const updateGoal = async (
   goalId,
   updates
 ) => {
+  assertNumericId(goalId, "Goal")
+
   const { data, error } = await supabase
     .from("goals")
     .update(updates)
     .eq("id", goalId)
     .eq("user_id", userId)
     .select()
-    .single()
+    .maybeSingle()
 
   if (error) throw error
+  if (!data) {
+    notFound(
+      "Goal no longer exists or belongs to another user."
+    )
+  }
 
   return data
 }
@@ -57,6 +80,8 @@ export const deleteGoal = async (
   userId,
   goalId
 ) => {
+  assertNumericId(goalId, "Goal")
+
   const { error } = await supabase
     .from("goals")
     .delete()
@@ -73,6 +98,8 @@ export const addSavings = async (
   goalId,
   amount
 ) => {
+  assertNumericId(goalId, "Goal")
+
   // Fetch current goal
   const { data: goal, error: fetchError } =
     await supabase
@@ -80,9 +107,14 @@ export const addSavings = async (
       .select("*")
       .eq("id", goalId)
       .eq("user_id", userId)
-      .single()
+      .maybeSingle()
 
   if (fetchError) throw fetchError
+  if (!goal) {
+    notFound(
+      "Goal no longer exists or belongs to another user."
+    )
+  }
 
   const newAmount =
     Number(goal.current_amount) + Number(amount)
@@ -99,9 +131,14 @@ export const addSavings = async (
     .eq("id", goalId)
     .eq("user_id", userId)
     .select()
-    .single()
+    .maybeSingle()
 
   if (error) throw error
+  if (!data) {
+    notFound(
+      "Goal no longer exists or belongs to another user."
+    )
+  }
 
   return data
 }

@@ -1,7 +1,15 @@
-import { ArrowDownLeft, ArrowUpRight, Filter, Plus } from "lucide-react"
+import {
+  ArrowDownLeft,
+  ArrowUpRight,
+  Filter,
+  Pencil,
+  Plus,
+  Trash2,
+} from "lucide-react"
 import { useEffect, useState } from "react"
 import useTransactionStore from "../store/useTransactionStore"
 import useQuickAddStore from "@/store/useQuickAddStore"
+import TransactionModal from "../components/transactions/TransactionModal"
 import {
   Metric,
   Page,
@@ -17,6 +25,8 @@ export default function Transactions() {
     loading,
     fetchTransactions,
     addTransaction,
+    updateTransaction,
+    deleteTransaction,
   } = useTransactionStore()
 
   const [showModal, setShowModal] =
@@ -26,10 +36,14 @@ export default function Transactions() {
     amount: "",
     description: "",
   })
+  const [
+    editingTransaction,
+    setEditingTransaction,
+  ] = useState(null)
 
   useEffect(() => {
     fetchTransactions()
-  }, [])
+  }, [fetchTransactions])
 
   const handleChange = (e) => {
     setForm({
@@ -51,8 +65,6 @@ export default function Transactions() {
         description: form.description,
       })
 
-      await fetchTransactions()
-
       setForm({
         amount: "",
         description: "",
@@ -64,14 +76,49 @@ export default function Transactions() {
     }
   }
 
+  const handleSaveTransaction = async (data) => {
+    const payload = {
+      ...data,
+      amount: Number(data.amount),
+    }
+
+    try {
+      if (editingTransaction?.id) {
+        await updateTransaction(
+          editingTransaction.id,
+          payload
+        )
+      } else {
+        await addTransaction(payload)
+      }
+
+      setEditingTransaction(null)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  const handleDeleteTransaction = async (tx) => {
+    const confirmed = window.confirm(
+      `Delete "${tx.note || tx.category || "transaction"}"?`
+    )
+
+    if (!confirmed) return
+
+    await deleteTransaction(tx.id)
+  }
+
   const expenses = transactions.filter(
-    (tx) => tx.type === "expense"
+    (tx) => tx && tx.type === "expense"
   )
 
   const incomeTransactions =
     transactions.filter(
-      (tx) => tx.type === "income"
+      (tx) => tx && tx.type === "income"
     )
+
+  const visibleTransactions =
+    transactions.filter(Boolean)
 
   const totalExpenses = expenses.reduce(
     (sum, tx) =>
@@ -202,7 +249,7 @@ export default function Transactions() {
           </button>
         </div>
 
-        {transactions.length === 0 ? (
+        {visibleTransactions.length === 0 ? (
           <div
             className="text-center py-12"
             style={{
@@ -216,7 +263,7 @@ export default function Transactions() {
             className="flex flex-col"
             style={{ gap: 4 }}
           >
-            {transactions.map((tx) => {
+            {visibleTransactions.map((tx) => {
               const income =
                 tx.type === "income"
 
@@ -293,6 +340,50 @@ export default function Transactions() {
                       "en-IN"
                     )}
                   </p>
+
+                  {tx.pendingSync && (
+                    <span
+                      className="rounded-full px-2 py-1 text-[10px] font-semibold uppercase"
+                      style={{
+                        background:
+                          "var(--ss-accent-subtle)",
+                        color:
+                          "var(--ss-accent)",
+                      }}
+                    >
+                      Pending Sync
+                    </span>
+                  )}
+
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() =>
+                        setEditingTransaction(tx)
+                      }
+                      className="rounded-lg p-2"
+                      aria-label="Edit transaction"
+                      style={{
+                        color:
+                          "var(--ss-text-2)",
+                      }}
+                    >
+                      <Pencil size={14} />
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        handleDeleteTransaction(tx)
+                      }
+                      className="rounded-lg p-2"
+                      aria-label="Delete transaction"
+                      style={{
+                        color:
+                          "var(--ss-negative)",
+                      }}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 </div>
               )
             })}
@@ -403,6 +494,15 @@ export default function Transactions() {
           </div>
         </div>
       )}       
+      <TransactionModal
+        open={Boolean(editingTransaction)}
+        onClose={() =>
+          setEditingTransaction(null)
+        }
+        onSubmit={handleSaveTransaction}
+        initial={editingTransaction}
+        loading={false}
+      />
     </Page>
   )
 }

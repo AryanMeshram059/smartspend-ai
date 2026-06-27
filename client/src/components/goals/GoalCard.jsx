@@ -1,4 +1,3 @@
-import React from "react"
 import { Pencil, Trash2, Plus } from "lucide-react"
 
 export default function GoalCard({
@@ -76,6 +75,20 @@ export default function GoalCard({
               }}
             >
               🏆 Completed
+            </span>
+          )}
+
+          {goal.pendingSync && (
+            <span
+              className="text-xs font-semibold px-3 py-1 rounded-full"
+              style={{
+                background:
+                  "var(--ss-accent-subtle)",
+                color:
+                  "var(--ss-accent)",
+              }}
+            >
+              Pending Sync
             </span>
           )}
         </div>

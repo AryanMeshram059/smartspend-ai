@@ -1,4 +1,8 @@
 import supabase from "../lib/supabase"
+import {
+  CACHE_KEYS,
+  fetchJsonWithCache,
+} from "../pwa/cacheManager"
 
 const API_URL =
   import.meta.env.VITE_API_URL ||
@@ -16,16 +20,14 @@ export const getDashboardData =
   async () => {
     const token = await getToken()
 
-    const response =
-      await fetch(
-        `${API_URL}/dashboard`,
-        {
-          headers: {
-            Authorization:
-              `Bearer ${token}`,
-          },
-        }
-      )
-
-    return response.json()
+    return fetchJsonWithCache({
+      url: `${API_URL}/dashboard`,
+      cacheKey: CACHE_KEYS.dashboard,
+      options: {
+        headers: {
+          Authorization:
+            `Bearer ${token}`,
+        },
+      },
+    })
   }

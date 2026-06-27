@@ -10,6 +10,7 @@ import {
 import { chatWithAI } from "../services/ai.service.js"
 import api from "../services/api.js"
 import useVoiceRecognition from "../hooks/useVoiceRecognition.js"
+import useOnlineStatus from "../hooks/useOnlineStatus.js"
 
 const prompts = [
   "Can I afford a Rs 3,000 purchase this week?",
@@ -29,6 +30,7 @@ const stripMarkdown = (text) =>
     .trim()
 
 export default function AiCenter() {
+  const isOnline = useOnlineStatus()
   const [messages, setMessages] = useState([
     {
       role: "assistant",
@@ -49,6 +51,9 @@ export default function AiCenter() {
   )
 
   useEffect(() => {
+      if (!isOnline) {
+        return
+      }
 
       const loadSession =
         async () => {
@@ -80,7 +85,7 @@ export default function AiCenter() {
 
       loadSession()
 
-    }, [])
+    }, [isOnline])
 
   useEffect(() => {
     return () => {
@@ -135,6 +140,13 @@ export default function AiCenter() {
     { speakReply = false } = {}
   ) => {
     if (!text.trim()) return
+
+    if (!isOnline) {
+      setVoiceStatus(
+        "AI requires an internet connection."
+      )
+      return
+    }
 
     const userMessage = {
       role: "user",
@@ -201,6 +213,7 @@ export default function AiCenter() {
     }
   }, [
     input,
+    isOnline,
     messages,
     sessionId,
     speakResponse,
@@ -212,6 +225,13 @@ export default function AiCenter() {
 
       if (!spokenText) return
 
+      if (!isOnline) {
+        setVoiceStatus(
+          "AI requires an internet connection."
+        )
+        return
+      }
+
       setInput(spokenText)
       setVoiceStatus(
         `Heard: "${spokenText}"`
@@ -220,7 +240,7 @@ export default function AiCenter() {
         speakReply: true,
       })
     },
-    [sendMessage]
+    [isOnline, sendMessage]
   )
 
   const handleVoiceError = useCallback(
@@ -280,8 +300,39 @@ export default function AiCenter() {
         <Panel className="min-h-[420px] flex flex-col">
           <SectionTitle
             title="Ask SmartSpend"
-            action="Online"
+            action={isOnline ? "Online" : "Offline"}
           />
+
+          {!isOnline && (
+            <div
+              className="mb-4 rounded-2xl p-4"
+              style={{
+                background:
+                  "var(--ss-ai-subtle)",
+                border:
+                  "1px solid color-mix(in srgb, var(--ss-ai) 30%, transparent)",
+                color: "var(--ss-text-1)",
+              }}
+            >
+              <p
+                style={{
+                  fontSize: 14,
+                  fontWeight: 700,
+                }}
+              >
+                AI requires an internet connection.
+              </p>
+              <p
+                style={{
+                  fontSize: 13,
+                  color: "var(--ss-text-2)",
+                  marginTop: 4,
+                }}
+              >
+                Reconnect to continue using SmartSpend AI.
+              </p>
+            </div>
+          )}
 
           <div className="flex-1 flex flex-col gap-3 overflow-y-auto pr-2">
             {messages.map(
@@ -371,10 +422,12 @@ export default function AiCenter() {
                 onChange={(e) =>
                   setInput(e.target.value)
                 }
+                disabled={!isOnline}
                 onKeyDown={(e) => {
                   if (
                     e.key === "Enter" &&
-                    !loading
+                    !loading &&
+                    isOnline
                   ) {
                     sendMessage()
                   }
@@ -383,7 +436,9 @@ export default function AiCenter() {
                 placeholder={
                   listening
                     ? "Listening..."
-                    : "Ask about spending, budgets, or goals..."
+                    : isOnline
+                      ? "Ask about spending, budgets, or goals..."
+                      : "Reconnect to use AI..."
                 }
                 style={{
                   fontSize: 13,
@@ -396,7 +451,8 @@ export default function AiCenter() {
                 onClick={toggleListening}
                 disabled={
                   loading ||
-                  !voiceInputSupported
+                  !voiceInputSupported ||
+                  !isOnline
                 }
                 className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
                 aria-label={
@@ -420,7 +476,8 @@ export default function AiCenter() {
                     : "var(--ss-ai)",
                   opacity:
                     loading ||
-                    !voiceInputSupported
+                    !voiceInputSupported ||
+                    !isOnline
                       ? 0.6
                       : 1,
                 }}
@@ -436,14 +493,14 @@ export default function AiCenter() {
                 onClick={() =>
                   sendMessage()
                 }
-                disabled={loading}
+                disabled={!isOnline || loading}
                 className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
                 aria-label="Send message"
                 style={{
                   background:
                     "var(--ss-ai-subtle)",
                   color: "var(--ss-ai)",
-                  opacity: loading
+                  opacity: !isOnline || loading
                     ? 0.6
                     : 1,
                 }}
@@ -482,6 +539,7 @@ export default function AiCenter() {
                 onClick={() =>
                   sendMessage(prompt)
                 }
+                disabled={!isOnline}
                 className="text-left rounded-2xl p-4 transition-colors hover:opacity-80"
                 style={{
                   background:
@@ -492,6 +550,7 @@ export default function AiCenter() {
                     "var(--ss-text-1)",
                   fontSize: 13,
                   lineHeight: 1.5,
+                  opacity: isOnline ? 1 : 0.55,
                 }}
               >
                 {prompt}

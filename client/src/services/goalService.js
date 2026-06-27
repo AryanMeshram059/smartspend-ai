@@ -1,4 +1,8 @@
 import supabase from "../lib/supabase"
+import {
+  CACHE_KEYS,
+  fetchJsonWithCache,
+} from "../pwa/cacheManager"
 
 const API_URL =
   import.meta.env.VITE_API_URL ||
@@ -16,16 +20,15 @@ const goalService = {
   async getGoals() {
     const token = await getToken()
 
-    const response = await fetch(
-      `${API_URL}/goals`,
-      {
+    return fetchJsonWithCache({
+      url: `${API_URL}/goals`,
+      cacheKey: CACHE_KEYS.goals,
+      options: {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
-    )
-
-    return response.json()
+      },
+    })
   },
 
   async createGoal(data) {

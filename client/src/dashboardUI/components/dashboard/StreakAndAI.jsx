@@ -1,6 +1,7 @@
 import { Flame, Send, Sparkles } from "lucide-react"
 import { useState } from "react"
 import useDashboardStore from "@/store/useDashboardStore"
+import useOnlineStatus from "@/hooks/useOnlineStatus"
 
 export function StreakCard() {
   const { analytics } =
@@ -91,6 +92,7 @@ export function StreakCard() {
 
 export function AIAssistant() {
   const [value, setValue] = useState("")
+  const isOnline = useOnlineStatus()
 
   return (
     <div
@@ -104,19 +106,22 @@ export function AIAssistant() {
       <Sparkles size={15} style={{ color: "var(--ss-ai)", flexShrink: 0 }} />
       <input
         type="text"
-        placeholder="Ask AI anything..."
+        placeholder={isOnline ? "Ask AI anything..." : "AI is offline"}
         value={value}
         onChange={(e) => setValue(e.target.value)}
+        disabled={!isOnline}
         className="flex-1 bg-transparent outline-none"
         style={{ fontSize: 14, color: "var(--ss-text-1)" }}
       />
       <button
+        disabled={!isOnline}
         className="flex items-center justify-center rounded-xl shrink-0 transition-opacity hover:opacity-80 cursor-pointer"
         style={{
           width: 36,
           height: 36,
           background: "var(--ss-ai-subtle)",
           flexShrink: 0,
+          opacity: isOnline ? 1 : 0.55,
         }}
       >
         <Send size={14} style={{ color: "var(--ss-ai)" }} />

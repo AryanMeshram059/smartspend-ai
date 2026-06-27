@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { Plus } from "lucide-react"
 
 import { AppShell } from "../dashboardUI/components/layout/AppShell" // <-- Change path if needed
@@ -28,7 +28,7 @@ export default function Goals() {
 
   useEffect(() => {
     fetchGoals()
-  }, [])
+  }, [fetchGoals])
 
   const handleCreate = () => {
     setSelectedGoal(null)

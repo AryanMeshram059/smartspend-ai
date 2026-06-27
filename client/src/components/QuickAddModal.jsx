@@ -8,7 +8,6 @@ export default function QuickAddModal() {
 
   const {
     addTransaction,
-    fetchTransactions,
   } = useTransactionStore()
 
   const [form, setForm] = useState({
@@ -42,8 +41,6 @@ export default function QuickAddModal() {
         description:
           form.description,
       })
-
-      await fetchTransactions()
 
       setForm({
         amount: "",
