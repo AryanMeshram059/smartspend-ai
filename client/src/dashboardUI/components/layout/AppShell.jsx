@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { NavLink } from "react-router-dom"
 import {
   LayoutDashboard,
@@ -11,7 +12,9 @@ import {
   Bell,
   Plus,
   ChevronRight,
+  ChevronDown,
 } from "lucide-react"
+import "../../styles/index.css"
 import { ThemeToggle } from "../dashboard/ThemeToggle.jsx"
 import useAuthStore from "@/store/useAuthStore"
 import useQuickAddStore from "@/store/useQuickAddStore.js"
@@ -28,12 +31,14 @@ const navItems = [
   { icon: Target, label: "Goals", path: "/goals" },
 ]
 
+const settingsItem = { icon: Settings, label: "Settings", path: "/settings" }
+
 const bottomItems = [
   navItems[0],
   navItems[1],
   { action: "add" },
   navItems[4],
-  navItems[5],
+  settingsItem,
 ]
 
 function Sidebar() {
@@ -405,6 +410,9 @@ function SyncStatusIndicator() {
 }
 
 export function AppShell({ title, actions, children }) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const mobileMenuItems = [...navItems, settingsItem]
+
   return (
     <div className="min-h-screen flex" style={{ background: "var(--ss-bg)", color: "var(--ss-text-1)" }}>
       <Sidebar />
@@ -423,8 +431,36 @@ export function AppShell({ title, actions, children }) {
           }}
         >
           {/* Inner wrapper — same max-w + px as content so title aligns with cards */}
-          <div className="mx-auto w-full max-w-[1600px] h-full flex items-center gap-4 px-8 md:px-10 xl:px-12 2xl:px-16">
-            <p style={{ fontSize: "28px", fontWeight: 800, color: "var(--ss-text-1)", lineHeight: 1.1 }}>
+          <div className="relative mx-auto w-full max-w-[1600px] h-full flex items-center gap-3 px-4 md:px-10 xl:px-12 2xl:px-16">
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen((open) => !open)}
+              className="md:hidden flex min-w-0 items-center gap-2"
+              aria-expanded={mobileMenuOpen}
+              aria-label="Open navigation menu"
+              style={{ color: "var(--ss-text-1)" }}
+            >
+              <span
+                className="truncate"
+                style={{
+                  fontSize: "clamp(24px, 7vw, 28px)",
+                  fontWeight: 800,
+                  lineHeight: 1.1,
+                }}
+              >
+                {title}
+              </span>
+              <ChevronDown
+                size={20}
+                className="shrink-0 transition-transform"
+                style={{
+                  color: "var(--ss-text-2)",
+                  transform: mobileMenuOpen ? "rotate(180deg)" : "none",
+                }}
+              />
+            </button>
+
+            <p className="hidden md:block" style={{ fontSize: "28px", fontWeight: 800, color: "var(--ss-text-1)", lineHeight: 1.1 }}>
               {title}
             </p>
 
@@ -454,6 +490,39 @@ export function AppShell({ title, actions, children }) {
             >
               <Bell size={15} style={{ color: "var(--ss-text-2)" }} />
             </button>
+
+            {mobileMenuOpen && (
+              <div
+                className="absolute left-4 right-4 top-[calc(100%-6px)] z-50 md:hidden rounded-2xl p-2 shadow-2xl"
+                style={{
+                  background: "var(--ss-surface)",
+                  border: "1px solid var(--ss-border)",
+                }}
+              >
+                {mobileMenuItems.map(({ icon: Icon, label, path }) => (
+                  <NavLink
+                    key={path}
+                    to={path}
+                    end={path === "/"}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-3 rounded-xl px-3 py-3"
+                    style={({ isActive }) => ({
+                      background: isActive
+                        ? "var(--ss-accent-subtle)"
+                        : "transparent",
+                      color: isActive
+                        ? "var(--ss-accent)"
+                        : "var(--ss-text-2)",
+                      fontSize: 14,
+                      fontWeight: isActive ? 700 : 600,
+                    })}
+                  >
+                    <Icon size={17} />
+                    <span>{label}</span>
+                  </NavLink>
+                ))}
+              </div>
+            )}
           </div>
         </header>
 
@@ -462,7 +531,7 @@ export function AppShell({ title, actions, children }) {
 
         <main className="flex-1 w-full">
           {/* PageContainer — every page's content lives inside this wrapper */}
-          <div className="mx-auto w-full max-w-[1600px] px-8 md:px-10 xl:px-12 2xl:px-16 py-8 pb-28 md:pb-10">
+          <div className="mx-auto w-full max-w-[1600px] px-4 md:px-10 xl:px-12 2xl:px-16 py-5 md:py-8 pb-28 md:pb-10">
             {children}
           </div>
         </main>

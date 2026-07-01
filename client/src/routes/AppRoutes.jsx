@@ -13,7 +13,6 @@ import Goals from "../pages/Goals"
 import Settings from "../pages/Settings"
 
 function AppRoutes() {
-  
   return (
     <BrowserRouter>
       <Routes>

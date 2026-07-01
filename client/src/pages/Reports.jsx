@@ -1,43 +1,108 @@
-import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis } from "recharts"
 import { Metric, Page, Panel, SectionTitle } from "./PageComponents.jsx"
 
-const data = [
-  { month: "Jan", saved: 16000, spent: 12000 },
-  { month: "Feb", saved: 17000, spent: 14000 },
-  { month: "Mar", saved: 18000, spent: 11000 },
-  { month: "Apr", saved: 17000, spent: 15000 },
-  { month: "May", saved: 18240, spent: 13760 },
+const categories = [
+  {
+    name: "Food & Dining",
+    amount: 8450,
+    percent: 26,
+    width: 100,
+  },
+  {
+    name: "Transport",
+    amount: 5200,
+    percent: 16,
+    width: 61,
+  },
+  {
+    name: "Entertainment",
+    amount: 4100,
+    percent: 13,
+    width: 48,
+  },
+  {
+    name: "Utilities",
+    amount: 6800,
+    percent: 21,
+    width: 80,
+  },
 ]
+
+const formatInr = (value) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(value)
 
 export default function Reports() {
   return (
-    <Page title="Reports" eyebrow="SMARTSPEND AI - INSIGHTS">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <Metric label="Savings rate" value="57%" tone="good" sub="+6% from April" />
-        <Metric label="Burn rate" value="Rs 458/day" tone="accent" sub="Projected Rs 14.2k" />
-        <Metric label="Risk alerts" value="2" tone="bad" sub="Food and entertainment" />
+    <Page title="Reports">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 md:gap-6">
+        <Metric
+          label="Total Income"
+          value={formatInr(45230)}
+          tone="good"
+          sub="This period"
+        />
+        <Metric
+          label="Total Expenses"
+          value={formatInr(32150)}
+          tone="bad"
+          sub="This period"
+        />
+        <Metric
+          label="Net Savings"
+          value={formatInr(13080)}
+          tone="accent"
+          sub="Net income"
+        />
+        <Metric label="Savings Rate" value="28.9%" sub="Healthy rate" />
       </div>
+
       <Panel>
-        <SectionTitle title="Cashflow trend" action="May 2026" />
-        <ResponsiveContainer width="100%" height={260}>
-          <BarChart data={data} barGap={6}>
-            <XAxis dataKey="month" tick={{ fill: "var(--ss-text-2)", fontSize: 11 }} axisLine={false} tickLine={false} />
-            <Tooltip cursor={{ fill: "rgba(128,128,128,0.08)" }} />
-            <Bar dataKey="saved" fill="var(--ss-accent)" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="spent" fill="#7C3AED" radius={[4, 4, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
+        <SectionTitle title="Top Spending Categories" />
+        <div className="flex flex-col gap-5">
+          {categories.map((category) => (
+            <div key={category.name} className="min-w-0">
+              <div className="mb-2 flex min-w-0 items-center justify-between gap-3">
+                <span
+                  className="min-w-0 truncate"
+                  style={{
+                    color: "var(--ss-text-1)",
+                    fontSize: 14,
+                    fontWeight: 600,
+                  }}
+                >
+                  {category.name}
+                </span>
+                <span
+                  className="shrink-0 whitespace-nowrap"
+                  style={{
+                    color: "var(--ss-text-2)",
+                    fontFamily: "JetBrains Mono, monospace",
+                    fontSize: "clamp(11px, 3vw, 13px)",
+                    fontWeight: 600,
+                  }}
+                >
+                  {formatInr(category.amount)} ({category.percent}%)
+                </span>
+              </div>
+              <div
+                className="h-2 w-full overflow-hidden rounded-full"
+                style={{ background: "var(--ss-surface-2)" }}
+              >
+                <div
+                  className="h-full rounded-full"
+                  style={{
+                    width: `${category.width}%`,
+                    background: "var(--ss-accent)",
+                  }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
       </Panel>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {["Food spend is 18% above target", "Subscriptions are stable", "Weekend spending is trending up"].map((item) => (
-          <Panel key={item}>
-            <p style={{ fontSize: 14, fontWeight: 700, color: "var(--ss-text-1)" }}>{item}</p>
-            <p className="mt-3" style={{ fontSize: 13, color: "var(--ss-text-2)", lineHeight: 1.6 }}>
-              AI generated from recent transactions and monthly budget behavior.
-            </p>
-          </Panel>
-        ))}
-      </div>
     </Page>
   )
 }

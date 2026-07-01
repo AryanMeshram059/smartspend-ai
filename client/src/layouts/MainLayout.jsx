@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { NavLink, useNavigate } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
-import { Menu, X, LogOut } from "lucide-react"
+import { Menu, X, LogOut, Settings } from "lucide-react"
 import useAuthStore from "../store/useAuthStore"
 
 const mainNav = [
@@ -12,7 +12,7 @@ const mainNav = [
 ]
 
 const aiNav = [
-  { label: "AI Center", to: "/ai-center" },
+  { label: "AI Center", to: "/ai" },
   { label: "Goals Hub", to: "/goals" },
 ]
 
@@ -179,11 +179,11 @@ export default function MainLayout({ children, currentPage = "Dashboard" }) {
           <button className="w-12 h-12 rounded-full border bg-zinc-900 border-[#88D9FF] flex items-center justify-center shadow-lg -translate-y-3 text-xl">
             🎙️
           </button>
-          <NavLink to="/ai-center" className={({ isActive }) => `flex flex-col items-center text-[9px] font-mono ${isActive ? "text-[#E0D206]" : "text-zinc-500"}`}>
+          <NavLink to="/ai" className={({ isActive }) => `flex flex-col items-center text-[9px] font-mono ${isActive ? "text-[#E0D206]" : "text-zinc-500"}`}>
             <span>✨</span>AI
           </NavLink>
-          <NavLink to="/goals" className={({ isActive }) => `flex flex-col items-center text-[9px] font-mono ${isActive ? "text-[#E0D206]" : "text-zinc-500"}`}>
-            <span>🏆</span>Goals
+          <NavLink to="/settings" className={({ isActive }) => `flex flex-col items-center text-[9px] font-mono ${isActive ? "text-[#E0D206]" : "text-zinc-500"}`}>
+            <Settings size={16} />Settings
           </NavLink>
         </nav>
       </div>
@@ -261,6 +261,23 @@ export default function MainLayout({ children, currentPage = "Dashboard" }) {
                         </NavLink>
                       </li>
                     ))}
+                  </ul>
+                </div>
+                <div>
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 block mb-2">Account</span>
+                  <ul className="space-y-1">
+                    <li onClick={() => setOpenSidebar(false)}>
+                      <NavLink
+                        to="/settings"
+                        className={({ isActive }) =>
+                          `flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium ${
+                            isActive ? "bg-[#7F7933]/15 border-l-4 border-[#7F7933]" : "text-zinc-400"
+                          }`
+                        }
+                      >
+                        Settings
+                      </NavLink>
+                    </li>
                   </ul>
                 </div>
               </nav>
