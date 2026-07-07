@@ -50,8 +50,65 @@ export function MonthlyOverview() {
 
   if (!analytics) return null
 
-  const monthlyData =
-    analytics.monthlyOverview
+  let monthlyData =
+    analytics.monthlyOverview || []
+
+  // Ensure data is an array
+  if (!Array.isArray(monthlyData)) {
+    monthlyData = [];
+  }
+
+  // Filter out months with 0 income and 0 expenses (empty months)
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  // Ensure all 12 months exist in order, fill missing ones with zeros
+  const completeMonthlyData = Array.from(
+    { length: 12 },
+    (_, i) => {
+      const existingMonth = monthlyData.find(
+        (m) => monthNames.indexOf(m.month) === i
+      );
+      return (
+        existingMonth || {
+          month: monthNames[i],
+          income: 0,
+          expenses: 0,
+        }
+      );
+    }
+  );
+
+  // Check if data is empty or invalid
+  if (completeMonthlyData.every((m) => m.income === 0 && m.expenses === 0)) {
+    return (
+      <div
+        className="rounded-3xl flex flex-col h-full items-center justify-center"
+        style={{
+          padding: 24,
+          background: "var(--ss-surface)",
+          border: "1px solid var(--ss-border)",
+          minHeight: 280,
+        }}
+      >
+        <p style={{ fontSize: 14, fontWeight: 600, color: "var(--ss-text-3)" }}>
+          No monthly data available
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -67,7 +124,9 @@ export function MonthlyOverview() {
         <p style={{ fontSize: 16, fontWeight: 700, color: "var(--ss-text-1)" }}>
           Monthly Overview
         </p>
-        <p style={{ fontSize: 12, fontWeight: 500, color: "var(--ss-text-3)" }}>May 2025</p>
+        <p style={{ fontSize: 12, fontWeight: 500, color: "var(--ss-text-3)" }}>
+          {completeMonthlyData[new Date().getMonth()]?.month || "Jun"} 2025
+        </p>
       </div>
 
       {/* Legend — separated from title by 24px gap */}
@@ -80,7 +139,7 @@ export function MonthlyOverview() {
           Income
         </span>
         <span className="flex items-center gap-2" style={{ fontSize: 12, color: "var(--ss-text-2)" }}>
-          <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: "#8B5CF6" }} />
+          <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: "#7C3AED" }} />
           Expenses
         </span>
       </div>
@@ -88,7 +147,7 @@ export function MonthlyOverview() {
       {/* Chart — mt-4 separates legend from bars, never touches card edges */}
       <div className="mt-4 flex-1" style={{ minHeight: 220 }}>
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={monthlyData} barGap={3} barCategoryGap="32%">
+          <BarChart data={completeMonthlyData} barGap={3} barCategoryGap="32%">
             <XAxis
               dataKey="month"
               tick={{ fill: "var(--ss-text-3)", fontSize: 12 }}
@@ -128,7 +187,26 @@ export function CategorySplit() {
   if (!analytics) return null
 
   const categoryData =
-    analytics.categorySplit
+    analytics.categorySplit || []
+
+  // Check if data is empty or invalid
+  if (!Array.isArray(categoryData) || categoryData.length === 0) {
+    return (
+      <div
+        className="rounded-3xl flex flex-col h-full items-center justify-center"
+        style={{
+          padding: 24,
+          background: "var(--ss-surface)",
+          border: "1px solid var(--ss-border)",
+          minHeight: 280,
+        }}
+      >
+        <p style={{ fontSize: 14, fontWeight: 600, color: "var(--ss-text-3)" }}>
+          No category data available
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -159,7 +237,7 @@ export function CategorySplit() {
               strokeWidth={0}
             >
               {categoryData.map((_, index) => (
-                <Cell key={`cell-${index}`} fill={categoryColors[index]} />
+                <Cell key={`cell-${index}`} fill={categoryColors[index % categoryColors.length]} />
               ))}
             </Pie>
           </PieChart>
@@ -175,7 +253,7 @@ export function CategorySplit() {
               >
                 <span
                   className="w-2.5 h-2.5 rounded-full shrink-0"
-                  style={{ background: categoryColors[i] }}
+                  style={{ background: categoryColors[i % categoryColors.length] }}
                 />
                 {name}
               </span>

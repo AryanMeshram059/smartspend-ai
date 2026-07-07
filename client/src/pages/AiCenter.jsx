@@ -276,8 +276,8 @@ export default function AiCenter() {
       eyebrow="SMARTSPEND AI - ASSISTANT"
     >
 
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-6">
-        <Panel className="min-h-[620px] flex flex-col">
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-4 xl:gap-6">
+        <Panel className="min-h-[500px] xl:min-h-[620px] flex flex-col">
           <SectionTitle
             title="Ask SmartSpend"
             action={isOnline ? "Online" : "Offline"}
@@ -285,7 +285,7 @@ export default function AiCenter() {
 
           {!isOnline && (
             <div
-              className="mb-4 rounded-2xl p-4"
+              className="mb-3 xl:mb-4 rounded-xl xl:rounded-2xl p-3 xl:p-4"
               style={{
                 background:
                   "var(--ss-ai-subtle)",
@@ -296,7 +296,7 @@ export default function AiCenter() {
             >
               <p
                 style={{
-                  fontSize: 14,
+                  fontSize: 13,
                   fontWeight: 700,
                 }}
               >
@@ -304,9 +304,9 @@ export default function AiCenter() {
               </p>
               <p
                 style={{
-                  fontSize: 13,
+                  fontSize: 12,
                   color: "var(--ss-text-2)",
-                  marginTop: 4,
+                  marginTop: 2,
                 }}
               >
                 Reconnect to continue using SmartSpend AI.
@@ -314,12 +314,12 @@ export default function AiCenter() {
             </div>
           )}
 
-          <div className="flex-1 flex flex-col gap-3 overflow-y-auto pr-2">
+          <div className="flex-1 flex flex-col gap-2 xl:gap-3 overflow-y-auto pr-1">
             {messages.map(
               (message, index) => (
                 <div
                   key={index}
-                  className={`max-w-[82%] rounded-2xl p-4 ${
+                  className={`max-w-[90%] xl:max-w-[82%] rounded-xl xl:rounded-2xl p-3 xl:p-4 ${
                     message.role === "user"
                       ? "self-end"
                       : ""
@@ -343,10 +343,10 @@ export default function AiCenter() {
                 >
                   <ReactMarkdown
                     style={{
-                      fontSize: 13,
+                      fontSize: 12,
                       color:
                         "var(--ss-text-1)",
-                      lineHeight: 1.6,
+                      lineHeight: 1.5,
                       whiteSpace:
                         "pre-wrap",
                     }}
@@ -359,7 +359,7 @@ export default function AiCenter() {
 
             {loading && (
               <div
-                className="max-w-[82%] rounded-2xl p-4"
+                className="max-w-[90%] xl:max-w-[82%] rounded-xl xl:rounded-2xl p-3 xl:p-4"
                 style={{
                   background:
                     "var(--ss-bg)",
@@ -369,7 +369,7 @@ export default function AiCenter() {
               >
                 <p
                   style={{
-                    fontSize: 13,
+                    fontSize: 12,
                     color:
                       "var(--ss-text-1)",
                   }}
@@ -381,16 +381,16 @@ export default function AiCenter() {
           </div>
 
           <div
-            className="mt-4 flex flex-col gap-2 rounded-2xl px-4 py-3 "
+            className="mt-3 xl:mt-4 flex flex-col gap-2 rounded-xl xl:rounded-2xl px-3 xl:px-4 py-2.5 xl:py-3"
             style={{
               background: "var(--ss-bg)",
               border:
                 "1px solid var(--ss-border)",
             }}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 xl:gap-3">
               <Sparkles
-                size={15}
+                size={14}
                 style={{
                   color: "var(--ss-ai)",
                   flexShrink: 0,
@@ -417,11 +417,11 @@ export default function AiCenter() {
                   listening
                     ? "Listening..."
                     : isOnline
-                      ? "Ask about spending, budgets, or goals..."
+                      ? "Ask about spending, budgets..."
                       : "Reconnect to use AI..."
                 }
                 style={{
-                  fontSize: 13,
+                  fontSize: 12,
                   color:
                     "var(--ss-text-1)",
                 }}
@@ -434,7 +434,7 @@ export default function AiCenter() {
                   !voiceInputSupported ||
                   !isOnline
                 }
-                className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                className="w-8 h-8 xl:w-9 xl:h-9 rounded-lg xl:rounded-xl flex items-center justify-center shrink-0"
                 aria-label={
                   listening
                     ? "Stop voice input"
@@ -463,9 +463,9 @@ export default function AiCenter() {
                 }}
               >
                 {listening ? (
-                  <MicOff size={14} />
+                  <MicOff size={12} />
                 ) : (
-                  <Mic size={14} />
+                  <Mic size={12} />
                 )}
               </button>
 
@@ -474,7 +474,7 @@ export default function AiCenter() {
                   sendMessage()
                 }
                 disabled={!isOnline || loading}
-                className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                className="w-8 h-8 xl:w-9 xl:h-9 rounded-lg xl:rounded-xl flex items-center justify-center shrink-0"
                 aria-label="Send message"
                 style={{
                   background:
@@ -485,7 +485,7 @@ export default function AiCenter() {
                     : 1,
                 }}
               >
-                <Send size={14} />
+                <Send size={12} />
               </button>
             </div>
 
@@ -494,7 +494,7 @@ export default function AiCenter() {
               speaking) && (
               <p
                 style={{
-                  fontSize: 12,
+                  fontSize: 11,
                   color:
                     "var(--ss-text-3)",
                 }}
@@ -512,7 +512,7 @@ export default function AiCenter() {
         <Panel>
           <SectionTitle title="Suggested prompts" />
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2 xl:gap-3">
             {prompts.map((prompt) => (
               <button
                 key={prompt}
@@ -520,7 +520,7 @@ export default function AiCenter() {
                   sendMessage(prompt)
                 }
                 disabled={!isOnline}
-                className="text-left rounded-2xl p-4 transition-colors hover:opacity-80"
+                className="text-left rounded-xl xl:rounded-2xl p-3 xl:p-4 transition-colors hover:opacity-80"
                 style={{
                   background:
                     "var(--ss-bg)",
@@ -528,8 +528,8 @@ export default function AiCenter() {
                     "1px solid var(--ss-border)",
                   color:
                     "var(--ss-text-1)",
-                  fontSize: 13,
-                  lineHeight: 1.5,
+                  fontSize: 12,
+                  lineHeight: 1.4,
                   opacity: isOnline ? 1 : 0.55,
                 }}
               >

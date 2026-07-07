@@ -1,7 +1,6 @@
 import {
   ArrowDownLeft,
   ArrowUpRight,
-  Filter,
   Pencil,
   Plus,
   Trash2,
@@ -31,6 +30,9 @@ export default function Transactions() {
 
   const [showModal, setShowModal] =
     useState(false)
+
+  const [filterType, setFilterType] =
+    useState("All")
 
   const [form, setForm] = useState({
     amount: "",
@@ -118,7 +120,23 @@ export default function Transactions() {
     )
 
   const visibleTransactions =
-    transactions.filter(Boolean)
+    transactions.filter((tx) => {
+      if (!tx) return false
+      
+      if (filterType === "All") {
+        return true
+      }
+      
+      if (filterType === "Income") {
+        return tx.type === "income"
+      }
+      
+      if (filterType === "Expense") {
+        return tx.type === "expense"
+      }
+      
+      return false
+    })
 
   const totalExpenses = expenses.reduce(
     (sum, tx) =>
@@ -177,7 +195,7 @@ export default function Transactions() {
         </PrimaryButton>
       }
     >
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-6">
         <Metric
           label="Total Expenses"
           value={`Rs ${totalExpenses.toLocaleString(
@@ -193,16 +211,16 @@ export default function Transactions() {
             "en-IN"
           )}`}
           tone="good"
-          sub={`${incomeTransactions.length} income entries`}
+          sub={`${incomeTransactions.length} income`}
         />
 
         <Metric
-          label="Average Spend"
+          label="Avg Spend"
           value={`Rs ${avgDailySpend.toLocaleString(
             "en-IN"
           )}`}
           tone="accent"
-          sub="Based on recorded expenses"
+          sub="Per expense"
         />
       </div>
 
@@ -217,18 +235,18 @@ export default function Transactions() {
             "All",
             "Income",
             "Expense",
-            "Recurring",
           ].map((item) => (
             <button
               key={item}
-              className="rounded-lg px-3 py-1.5 text-xs font-semibold"
+              onClick={() => setFilterType(item)}
+              className="rounded-lg px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition-colors"
               style={{
                 background:
-                  item === "All"
+                  item === filterType
                     ? "var(--ss-accent-subtle)"
                     : "var(--ss-surface-2)",
                 color:
-                  item === "All"
+                  item === filterType
                     ? "var(--ss-accent)"
                     : "var(--ss-text-2)",
               }}
@@ -236,17 +254,6 @@ export default function Transactions() {
               {item}
             </button>
           ))}
-
-          <button
-            className="ml-auto rounded-lg p-2"
-            style={{
-              background:
-                "var(--ss-surface-2)",
-              color: "var(--ss-text-2)",
-            }}
-          >
-            <Filter size={14} />
-          </button>
         </div>
 
         {visibleTransactions.length === 0 ? (
@@ -261,7 +268,7 @@ export default function Transactions() {
         ) : (
           <div
             className="flex flex-col"
-            style={{ gap: 4 }}
+            style={{ gap: 3 }}
           >
             {visibleTransactions.map((tx) => {
               const income =
@@ -274,9 +281,8 @@ export default function Transactions() {
               return (
                 <div
                   key={tx.id}
-                  className="flex items-center gap-4 px-4 rounded-2xl transition-colors"
+                  className="flex items-center gap-2 sm:gap-3 px-2 sm:px-4 py-2 rounded-xl sm:rounded-2xl transition-colors"
                   style={{
-                    height: 64,
                     background:
                       "var(--ss-bg)",
                     border:
@@ -284,7 +290,7 @@ export default function Transactions() {
                   }}
                 >
                   <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0"
                     style={{
                       background: income
                         ? "var(--ss-positive-subtle)"
@@ -294,13 +300,14 @@ export default function Transactions() {
                         : "var(--ss-negative)",
                     }}
                   >
-                    <Icon size={16} />
+                    <Icon size={14} />
                   </div>
 
                   <div className="flex-1 min-w-0">
                     <p
+                      className="truncate"
                       style={{
-                        fontSize: 14,
+                        fontSize: 13,
                         fontWeight: 600,
                         color:
                           "var(--ss-text-1)",
@@ -311,26 +318,26 @@ export default function Transactions() {
                     </p>
 
                     <p
+                      className="truncate"
                       style={{
-                        fontSize: 12,
+                        fontSize: 11,
                         color:
                           "var(--ss-text-3)",
                       }}
                     >
-                      {tx.category} ·{" "}
-                      {
-                        tx.transaction_date
-                      }
+                      {tx.category}
                     </p>
                   </div>
 
                   <p
+                    className="shrink-0"
                     style={{
-                      fontSize: 14,
+                      fontSize: 13,
                       fontWeight: 700,
                       color: income
                         ? "var(--ss-positive)"
                         : "var(--ss-negative)",
+                      whiteSpace: "nowrap",
                     }}
                   >
                     {income ? "+" : "−"}Rs{" "}
@@ -341,47 +348,33 @@ export default function Transactions() {
                     )}
                   </p>
 
-                  {tx.pendingSync && (
-                    <span
-                      className="rounded-full px-2 py-1 text-[10px] font-semibold uppercase"
-                      style={{
-                        background:
-                          "var(--ss-accent-subtle)",
-                        color:
-                          "var(--ss-accent)",
-                      }}
-                    >
-                      Pending Sync
-                    </span>
-                  )}
-
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
                     <button
                       onClick={() =>
                         setEditingTransaction(tx)
                       }
-                      className="rounded-lg p-2"
+                      className="rounded-lg p-1.5 sm:p-2"
                       aria-label="Edit transaction"
                       style={{
                         color:
                           "var(--ss-text-2)",
                       }}
                     >
-                      <Pencil size={14} />
+                      <Pencil size={12} />
                     </button>
 
                     <button
                       onClick={() =>
                         handleDeleteTransaction(tx)
                       }
-                      className="rounded-lg p-2"
+                      className="rounded-lg p-1.5 sm:p-2"
                       aria-label="Delete transaction"
                       style={{
                         color:
                           "var(--ss-negative)",
                       }}
                     >
-                      <Trash2 size={14} />
+                      <Trash2 size={12} />
                     </button>
                   </div>
                 </div>
@@ -392,23 +385,25 @@ export default function Transactions() {
       </Panel>
       {showModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-2 sm:p-4"
           style={{
             background: "rgba(0,0,0,0.65)",
             backdropFilter: "blur(6px)",
           }}
         >
           <div
-            className="w-full max-w-md rounded-3xl p-6"
+            className="w-full max-w-md rounded-t-3xl sm:rounded-3xl p-4 sm:p-6"
             style={{
               background: "var(--ss-surface)",
               border: "1px solid var(--ss-border)",
+              maxHeight: "85vh",
+              overflowY: "auto",
             }}
           >
-            <div className="mb-6">
+            <div className="mb-4 sm:mb-6">
               <h2
                 style={{
-                  fontSize: 22,
+                  fontSize: 20,
                   fontWeight: 700,
                   color: "var(--ss-text-1)",
                 }}
@@ -418,9 +413,9 @@ export default function Transactions() {
 
               <p
                 style={{
-                  fontSize: 13,
+                  fontSize: 12,
                   color: "var(--ss-text-3)",
-                  marginTop: 6,
+                  marginTop: 4,
                 }}
               >
                 Record a transaction in seconds.
@@ -429,7 +424,7 @@ export default function Transactions() {
 
             <form
               onSubmit={handleSubmit}
-              className="space-y-4"
+              className="space-y-3 sm:space-y-4"
             >
               <input
                 type="number"
@@ -438,7 +433,7 @@ export default function Transactions() {
                 onChange={handleChange}
                 placeholder="Amount"
                 required
-                className="w-full rounded-xl px-4 py-3 bg-transparent outline-none"
+                className="w-full rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 bg-transparent outline-none text-sm sm:text-base"
                 style={{
                   border:
                     "1px solid var(--ss-border)",
@@ -453,7 +448,7 @@ export default function Transactions() {
                 onChange={handleChange}
                 placeholder="Dominos pizza"
                 required
-                className="w-full rounded-xl px-4 py-3 bg-transparent outline-none"
+                className="w-full rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 bg-transparent outline-none text-sm sm:text-base"
                 style={{
                   border:
                     "1px solid var(--ss-border)",
@@ -461,13 +456,13 @@ export default function Transactions() {
                 }}
               />
 
-              <div className="flex gap-3 pt-2">
+              <div className="flex gap-2 sm:gap-3 pt-1 sm:pt-2">
                 <button
                   type="button"
                   onClick={() =>
                     setShowModal(false)
                   }
-                  className="flex-1 rounded-xl py-3"
+                  className="flex-1 rounded-xl py-2.5 sm:py-3 text-sm sm:text-base"
                   style={{
                     background:
                       "var(--ss-surface-2)",
@@ -480,7 +475,7 @@ export default function Transactions() {
 
                 <button
                   type="submit"
-                  className="flex-1 rounded-xl py-3 font-semibold"
+                  className="flex-1 rounded-xl py-2.5 sm:py-3 font-semibold text-sm sm:text-base"
                   style={{
                     background:
                       "var(--ss-accent)",

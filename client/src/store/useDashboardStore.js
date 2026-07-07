@@ -1,6 +1,7 @@
 import { create } from "zustand"
 import { getDashboardData }
 from "../services/dashboardService"
+import { CACHE_KEYS, updateCachedData } from "../pwa/cacheManager"
 
 const useDashboardStore = create(
   (set) => ({
@@ -17,6 +18,12 @@ const useDashboardStore = create(
           const data =
             await getDashboardData()
 
+          // Log monthly data for debugging
+          console.log("Dashboard data received:", {
+            monthlyOverview: data.analytics?.monthlyOverview,
+            categorySplit: data.analytics?.categorySplit,
+          })
+
           set({
             analytics:
               data.analytics,
@@ -29,6 +36,18 @@ const useDashboardStore = create(
           })
         }
       },
+
+    // Clear cache to force fresh data
+    clearCache: async () => {
+      try {
+        updateCachedData(CACHE_KEYS.dashboard, () => null)
+        // Re-fetch dashboard data
+        const { fetchDashboard } = useDashboardStore.getState()
+        await fetchDashboard()
+      } catch (error) {
+        console.error("Failed to clear cache", error)
+      }
+    },
   })
 )
 

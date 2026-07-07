@@ -58,15 +58,12 @@ export const getDashboardAnalytics = async (
   const monthlyMap = {}
 
   transactions.forEach((tx) => {
-    const month =
-      monthNames[
-        new Date(
-          tx.transaction_date
-        ).getMonth()
-      ]
+    const date = new Date(tx.transaction_date)
+    const monthIndex = date.getMonth()
+    const month = monthNames[monthIndex]
 
-    if (!monthlyMap[month]) {
-      monthlyMap[month] = {
+    if (!monthlyMap[monthIndex]) {
+      monthlyMap[monthIndex] = {
         month,
         income: 0,
         expenses: 0,
@@ -74,16 +71,23 @@ export const getDashboardAnalytics = async (
     }
 
     if (tx.type === "income") {
-      monthlyMap[month].income +=
+      monthlyMap[monthIndex].income +=
         Number(tx.amount)
     } else {
-      monthlyMap[month].expenses +=
+      monthlyMap[monthIndex].expenses +=
         Number(tx.amount)
     }
   })
 
-  const monthlyOverview =
-    Object.values(monthlyMap)
+  // Sort by month index to maintain chronological order (Jan-Dec)
+  const monthlyOverview = Array.from(
+    { length: 12 },
+    (_, i) => monthlyMap[i] || {
+      month: monthNames[i],
+      income: 0,
+      expenses: 0,
+    }
+  )
 
   // Category Split
 

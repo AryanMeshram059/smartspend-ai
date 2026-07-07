@@ -156,10 +156,43 @@ function MoneyTile({ label, value, sub, tone }) {
 }
 
 function MobileOverview({ data }) {
-  const latest = data[data.length - 1] || fallbackAnalytics.monthlyOverview[0]
-  const maxValue = Math.max(latest.income || 0, latest.expenses || 0, 1)
-  const incomeHeight = Math.max(28, ((latest.income || 0) / maxValue) * 92)
-  const expenseHeight = Math.max(28, ((latest.expenses || 0) / maxValue) * 92)
+  // Ensure data is an array
+  const validData = Array.isArray(data) ? data : [];
+  
+  if (validData.length === 0) {
+    return (
+      <MobileCard className="px-6 py-6 flex items-center justify-center min-h-[180px]">
+        <p style={{ color: "var(--ss-text-3)", fontSize: 13, fontWeight: 600 }}>
+          No monthly data available
+        </p>
+      </MobileCard>
+    );
+  }
+
+  // Get current month data by month name
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const currentMonthIndex = new Date().getMonth();
+  const currentMonthName = monthNames[currentMonthIndex];
+  
+  // Find the data entry that matches current month
+  const currentMonthData = validData.find(
+    (m) => m.month === currentMonthName
+  );
+  
+  // If no data for current month, show placeholder
+  if (!currentMonthData) {
+    return (
+      <MobileCard className="px-6 py-6 flex items-center justify-center min-h-[180px]">
+        <p style={{ color: "var(--ss-text-3)", fontSize: 13, fontWeight: 600 }}>
+          No data for {currentMonthName} yet
+        </p>
+      </MobileCard>
+    );
+  }
+
+  const maxValue = Math.max(currentMonthData.income || 0, currentMonthData.expenses || 0, 1);
+  const incomeHeight = Math.max(28, ((currentMonthData.income || 0) / maxValue) * 92);
+  const expenseHeight = Math.max(28, ((currentMonthData.expenses || 0) / maxValue) * 92);
 
   return (
     <MobileCard className="px-6 py-6">
@@ -177,7 +210,7 @@ function MobileOverview({ data }) {
         <span className="flex items-center gap-2" style={{ fontSize: 11 }}>
           <span
             className="h-2.5 w-2.5 rounded-full"
-            style={{ background: "#8B5CF6" }}
+            style={{ background: "#7C3AED" }}
           />
           Expenses
         </span>
@@ -192,25 +225,38 @@ function MobileOverview({ data }) {
             }}
           />
           <span style={{ color: "var(--ss-text-3)", fontSize: 11 }}>
-            {latest.month || "Jun"}
+            {currentMonthData.month}
           </span>
         </div>
         <div
           className="w-10 rounded-md"
           style={{
             height: expenseHeight,
-            background: "#8B5CF6",
+            background: "#7C3AED",
             marginBottom: 22,
           }}
         />
       </div>
     </MobileCard>
-  )
+  );
 }
 
 function MobileSplit({ data }) {
-  const top = data[0] || fallbackAnalytics.categorySplit[0]
-  const value = Number(top.value || 0)
+  // Ensure data is an array
+  const validData = Array.isArray(data) ? data : [];
+  
+  if (validData.length === 0) {
+    return (
+      <MobileCard className="flex min-h-[170px] flex-col px-5 py-5 items-center justify-center">
+        <p style={{ color: "var(--ss-text-3)", fontSize: 13, fontWeight: 600 }}>
+          No category data
+        </p>
+      </MobileCard>
+    );
+  }
+
+  const top = validData[0];
+  const value = Number(top.value || 0);
 
   return (
     <MobileCard className="flex min-h-[170px] flex-col px-5 py-5">
@@ -245,7 +291,7 @@ function MobileSplit({ data }) {
         </span>
       </div>
     </MobileCard>
-  )
+  );
 }
 
 function MobileRecent({ transactions }) {

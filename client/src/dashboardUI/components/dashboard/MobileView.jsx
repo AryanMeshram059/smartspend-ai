@@ -1,7 +1,8 @@
 import { Grid2x2, AlignJustify, Sparkles, Trophy, Plus, ShoppingBag, Car, Briefcase, TrendingUp } from "lucide-react";
 import { useState } from "react";
-import { BarChart, Bar, XAxis, ResponsiveContainer, Cell } from "recharts";
+import { BarChart, Bar, XAxis, ResponsiveContainer, Cell, Tooltip } from "recharts";
 import { ThemeToggle } from "./ThemeToggle.jsx";
+import useDashboardStore from "@/store/useDashboardStore";
 
 const transactions = [
   { id: 1, name: "Dominos", category: "Food", amount: -380, icon: ShoppingBag, iconColor: "#EF4444", iconBg: "rgba(239,68,68,0.18)" },
@@ -18,6 +19,30 @@ const spendingData = [
   { day: "Sat", value: 3200 },
   { day: "Sun", value: 900 },
 ];
+
+function CustomBarTooltip({ active, payload, label }) {
+  if (active && payload?.length) {
+    return (
+      <div
+        className="rounded-xl p-3"
+        style={{
+          fontSize: 12,
+          background: "var(--ss-surface-2)",
+          border: "1px solid var(--ss-border)",
+          lineHeight: 1.6,
+        }}
+      >
+        <p style={{ color: "var(--ss-text-2)", marginBottom: 4, fontWeight: 600 }}>{label}</p>
+        {payload.map((p) => (
+          <p key={p.name} style={{ color: p.fill, fontWeight: 600 }}>
+            {p.name === "income" ? "Income" : "Expenses"}: ₹{(p.value / 1000).toFixed(0)}k
+          </p>
+        ))}
+      </div>
+    );
+  }
+  return null;
+}
 
 const categories = [
   { name: "Food", pct: 35, colorVar: "var(--ss-accent)", spent: 4816 },
@@ -36,6 +61,16 @@ const bottomNav = [
 
 export function MobileView() {
   const [aiQuery, setAiQuery] = useState("");
+  const { analytics } = useDashboardStore();
+
+  // Use store data if available, otherwise use fallback
+  const monthlyData = analytics?.monthlyOverview || [
+    { month: "Jan", income: 32000, expenses: 13760 },
+    { month: "Feb", income: 28000, expenses: 12500 },
+    { month: "Mar", income: 35000, expenses: 14200 },
+    { month: "Apr", income: 31000, expenses: 13100 },
+    { month: "May", income: 32000, expenses: 13760 },
+  ];
 
   return (
     <div
@@ -148,6 +183,68 @@ export function MobileView() {
               </Bar>
             </BarChart>
           </ResponsiveContainer>
+        </div>
+
+        {/* Monthly Overview */}
+        <div className="rounded-3xl px-5 pt-5 pb-3 mb-4" style={{ background: "var(--ss-surface)", border: "1px solid var(--ss-border)" }}>
+          <div className="flex items-center justify-between mb-4">
+            <p style={{ fontSize: 14, fontWeight: 700, color: "var(--ss-text-1)" }}>Monthly Overview</p>
+            <span style={{ fontSize: 11, fontWeight: 600, color: "var(--ss-text-3)" }}>
+              {(() => {
+                const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                return monthNames[new Date().getMonth()];
+              })()}
+            </span>
+          </div>
+          <div className="flex items-center gap-4 mb-4">
+            <span className="flex items-center gap-2" style={{ fontSize: 11, color: "var(--ss-text-2)" }}>
+              <span className="w-2 h-2 rounded-sm" style={{ background: "var(--ss-accent)" }} />
+              Income
+            </span>
+            <span className="flex items-center gap-2" style={{ fontSize: 11, color: "var(--ss-text-2)" }}>
+              <span className="w-2 h-2 rounded-sm" style={{ background: "#7C3AED" }} />
+              Expenses
+            </span>
+          </div>
+          {(() => {
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const currentMonthName = monthNames[new Date().getMonth()];
+            const currentMonthData = monthlyData.find((m) => m.month === currentMonthName);
+            
+            if (!currentMonthData) {
+              return (
+                <p style={{ color: "var(--ss-text-3)", fontSize: 12, textAlign: "center", padding: "16px 0" }}>
+                  No data for {currentMonthName} yet
+                </p>
+              );
+            }
+
+            const maxValue = Math.max(currentMonthData.income || 0, currentMonthData.expenses || 0, 1);
+            const incomeHeight = Math.max(28, ((currentMonthData.income || 0) / maxValue) * 92);
+            const expenseHeight = Math.max(28, ((currentMonthData.expenses || 0) / maxValue) * 92);
+
+            return (
+              <div className="flex h-[100px] items-end justify-center gap-6">
+                <div className="flex flex-col items-center gap-2">
+                  <div
+                    className="w-8 rounded-md"
+                    style={{
+                      height: incomeHeight,
+                      background: "var(--ss-accent)",
+                    }}
+                  />
+                  <span style={{ color: "var(--ss-text-3)", fontSize: 10 }}>Income</span>
+                </div>
+                <div
+                  className="w-8 rounded-md"
+                  style={{
+                    height: expenseHeight,
+                    background: "#7C3AED",
+                  }}
+                />
+              </div>
+            );
+          })()}
         </div>
 
         {/* Savings rate */}
