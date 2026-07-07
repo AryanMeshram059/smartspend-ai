@@ -209,7 +209,7 @@ export default function Transactions() {
       <Panel>
         <SectionTitle
           title="Recent activity"
-          action="Export CSV"
+          action=""
         />
 
         <div className="flex items-center gap-2 mb-4 overflow-x-auto">

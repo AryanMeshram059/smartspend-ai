@@ -275,29 +275,9 @@ export default function AiCenter() {
       title="AI Center"
       eyebrow="SMARTSPEND AI - ASSISTANT"
     >
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <Metric
-          label="Monthly insight"
-          value="Rs 2.4k"
-          tone="good"
-          sub="Potential savings found"
-        />
-        <Metric
-          label="Budget risks"
-          value="2"
-          tone="bad"
-          sub="Food and entertainment"
-        />
-        <Metric
-          label="Confidence"
-          value="86%"
-          tone="accent"
-          sub="Based on recent data"
-        />
-      </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-6">
-        <Panel className="min-h-[420px] flex flex-col">
+        <Panel className="min-h-[620px] flex flex-col">
           <SectionTitle
             title="Ask SmartSpend"
             action={isOnline ? "Online" : "Offline"}
@@ -401,7 +381,7 @@ export default function AiCenter() {
           </div>
 
           <div
-            className="mt-4 flex flex-col gap-2 rounded-2xl px-4 py-3"
+            className="mt-4 flex flex-col gap-2 rounded-2xl px-4 py-3 "
             style={{
               background: "var(--ss-bg)",
               border:

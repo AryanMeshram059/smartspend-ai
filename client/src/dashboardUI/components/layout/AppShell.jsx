@@ -25,19 +25,20 @@ import useSyncStatus from "@/hooks/useSyncStatus"
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/" },
   { icon: ArrowLeftRight, label: "Transactions", path: "/transactions" },
-  { icon: PieChart, label: "Budgets", path: "/budgets" },
-  { icon: BarChart3, label: "Reports", path: "/reports" },
+  // { icon: PieChart, label: "Budgets", path: "/budgets" },
+  // { icon: BarChart3, label: "Reports", path: "/reports" },
   { icon: Sparkles, label: "AI Center", path: "/ai" },
   { icon: Target, label: "Goals", path: "/goals" },
 ]
+
 
 const settingsItem = { icon: Settings, label: "Settings", path: "/settings" }
 
 const bottomItems = [
   navItems[0],
-  navItems[1],
+  navItems[2],
   { action: "add" },
-  navItems[4],
+  navItems[1],
   settingsItem,
 ]
 
