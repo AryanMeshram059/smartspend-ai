@@ -19,7 +19,7 @@ const app = express()
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://smartspend-ai-brown-eta.vercel.app",// replace this with actual vercel url
+  "https://smartspend-ai-brown-eta.vercel.app",
 ];
 
 app.use(
