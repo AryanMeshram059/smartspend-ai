@@ -18,6 +18,7 @@ import {
 } from "../dashboardUI/components/dashboard/StreakAndAI.jsx"
 import useDashboardStore from "../store/useDashboardStore.js"
 import { formatCurrency } from "../utils/formatCurrency.js"
+import { NavLink } from "react-router-dom"
 
 const fallbackAnalytics = {
   summary: {
@@ -111,18 +112,7 @@ function BalanceCard({ balance }) {
       >
         {formatCurrency(balance)}
       </p>
-      <span
-        className="mt-6 inline-flex max-w-full items-center gap-1.5 rounded-lg px-3 py-2"
-        style={{
-          background: "var(--ss-positive-subtle)",
-          color: "var(--ss-positive)",
-          fontSize: 12,
-          fontWeight: 800,
-        }}
-      >
-        <TrendingUp size={13} className="shrink-0" />
-        <span className="truncate">+4.2% this month</span>
-      </span>
+      
     </MobileCard>
   )
 }
@@ -175,12 +165,6 @@ function MobileOverview({ data }) {
     <MobileCard className="px-6 py-6">
       <div className="flex min-w-0 items-center justify-between gap-4">
         <TinyLabel>Monthly Overview</TinyLabel>
-        <span
-          className="shrink-0"
-          style={{ color: "var(--ss-text-3)", fontSize: 11 }}
-        >
-          May 2025
-        </span>
       </div>
       <div className="mt-6 flex flex-wrap items-center gap-5">
         <span className="flex items-center gap-2" style={{ fontSize: 11 }}>
@@ -269,12 +253,13 @@ function MobileRecent({ transactions }) {
     <MobileCard className="min-h-[170px] px-5 py-5">
       <div className="flex items-center justify-between gap-3">
         <TinyLabel>Recent</TinyLabel>
-        <span
+        <NavLink
+          to={"/transactions"}
           className="shrink-0 uppercase"
           style={{ color: "var(--ss-accent)", fontSize: 11, fontWeight: 900 }}
         >
           View all
-        </span>
+        </NavLink>
       </div>
       <div className="mt-4 flex flex-col gap-4">
         {transactions.slice(0, 2).map((tx) => {
@@ -342,14 +327,10 @@ function MobileDashboard({ analytics }) {
         <MoneyTile
           label="Income"
           value={summary.income || 0}
-          sub="Salary"
-          tone="positive"
         />
         <MoneyTile
           label="Expenses"
           value={summary.expenses || 0}
-          sub="-1.9% vs last mo."
-          tone="negative"
         />
       </div>
 
@@ -359,6 +340,7 @@ function MobileDashboard({ analytics }) {
         <MobileSplit data={analytics.categorySplit || []} />
         <MobileRecent transactions={analytics.recentTransactions || []} />
       </div>
+      <StreakCard/>
     </div>
   )
 }
@@ -383,7 +365,6 @@ function DesktopDashboard() {
         </div>
         <div className="flex flex-col gap-6 xl:col-span-2">
           <StreakCard />
-          <AIAssistant />
         </div>
       </div>
     </div>

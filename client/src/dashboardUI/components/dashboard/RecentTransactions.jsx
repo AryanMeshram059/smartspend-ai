@@ -1,5 +1,6 @@
 import { ShoppingBag, Car, Briefcase, Coffee } from "lucide-react";
 import useDashboardStore from "@/store/useDashboardStore";
+import { NavLink } from "react-router-dom";
 
 
 
@@ -26,12 +27,13 @@ export function RecentTransactions() {
         <p style={{ fontSize: 16, fontWeight: 700, color: "var(--ss-text-1)" }}>
           Recent Transactions
         </p>
-        <button
+        <NavLink
+          to={"/transactions"}
           style={{ fontSize: 13, fontWeight: 600, color: "var(--ss-accent)" }}
           className="hover:opacity-75 transition-opacity cursor-pointer"
         >
           View all
-        </button>
+        </NavLink>
       </div>
 
       {/* Transaction rows — mt-6 separates from header */}
